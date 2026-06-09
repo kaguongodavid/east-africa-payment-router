@@ -20,15 +20,23 @@ app.get('/test-fx', async(req, res) => {
 
 
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
-
 const { routePayment } = require('./services/routingService');
 
 app.get('/test-routing', (req, res) => {
     const result = routePayment('KES', 'UGX', 1000);
     res.json(result);
+});
+
+
+const { processPayment } = require('./services/settlementService');
+
+app.post('/test-settlement', async (req, res) => {
+    const result = await processPayment('KES', 'UGX', 1000, '+25412345678', '+256712345678');
+    res.json(result);
+})
+
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server runnig on port ${PORT}`);
 });
