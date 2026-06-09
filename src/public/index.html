@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>East Africa Payment Router</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background: #f5f5f5; }
+        h1 { color: #2c3e50; }
+        button { background: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #219a52; }
+        pre { background: #2c3e50; color: #27ae60; padding: 20px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🌍 East Africa Payment Router</h1>
+    <p>Test all API endpoints below:</p>
+
+    <h3>1. Health Check</h3>
+    <button onclick="testEndpoint('GET', '/')">Test Health</button>
+
+    <h3>2. FX Conversion (KES → UGX)</h3>
+    <button onclick="testEndpoint('GET', '/test-fx')">Test FX Rate</button>
+
+    <h3>3. Payment Routing</h3>
+    <button onclick="testEndpoint('GET', '/test-routing')">Test Routing</button>
+
+    <h3>4. Full Settlement</h3>
+    <button onclick="testEndpoint('POST', '/test-settlement')">Test Settlement</button>
+
+    <h3>Response:</h3>
+    <pre id="output">Click a button to test...</pre>
+
+    <script>
+        async function testEndpoint(method, path) {
+            document.getElementById('output').textContent = 'Loading...';
+            try {
+                const res = await fetch(path, { method });
+                const data = await res.json();
+                document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                document.getElementById('output').textContent = 'Error: ' + err.message;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -3,6 +3,7 @@ const { convert } = require('./services/fxService');
 const app = express();
 
 app.use(express.json());
+app.use(express.static('src/public')); 
 
 // Health check
 app.get('/', (req, res) => {
