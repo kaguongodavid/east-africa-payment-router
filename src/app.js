@@ -41,3 +41,24 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server runnig on port ${PORT}`);
 });
+
+
+app.get('/api/convert', async (req, res) => {
+    const { amount, from, to } = req.query;
+    const result = await convert(Number(amount), from, to);
+    res.json(result);
+});
+
+
+app.get('/api/route', (req, res) => {
+    const { from, to, amount } = req.query;
+    const result = routePayment(from, to, Number(amount));
+    res.json(result);
+});
+
+
+app.post('/api/settle', async (req, res) => {
+    const { fromCurrency, toCurrency, amount, senderPhone, receiverPhone } = req.body;
+    const result = await processPayment(fromCurrency, toCurrency, Number(amount), senderPhone, receiverPhone);
+    res.json(result);
+});
