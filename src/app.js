@@ -1,11 +1,13 @@
 const express = require('express');
 const { convert } = require('./services/fxService');
+const paymentRoutes = require('./routes/payments');
 const app = express();
 
 app.use(express.json());
 app.use(express.static('src/public')); 
+app.use('/api/v1', paymentRoutes);
 
-// Health check
+
 app.get('/', (req, res) => {
     res.json({
         project: "East Africa Cross-Border Payment Router",
