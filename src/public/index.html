@@ -102,7 +102,7 @@
             try {
                 const res = await fetch(`/api/convert?amount=${amount}&from=${from}&to=${to}`);
                 const data = await res.json();
-                document.getElementById('fx-output').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('fx-output').textContent = `${data.amount.toLocaleString()} ${data.from} = ${data.converted.toLocaleString()} ${data.to}\nRate: ${data.rate}`;
             } catch (err) {
                 document.getElementById('fx-output').textContent = 'Error: ' + err.message;
             }
@@ -116,7 +116,7 @@
             try {
                 const res = await fetch(`/api/route?from=${from}&to=${to}&amount=${amount}`);
                 const data = await res.json();
-                document.getElementById('route-output').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('route-output').textContent = `Corridor: ${data.corridor}\nSender Provider: ${data.sender}\nReceiver Provider: ${data.receiver}\nAmount: ${data.amount.toLocaleString()}\nStatus: ${data.status}`;
             } catch (err) {
                 document.getElementById('route-output').textContent = 'Error: ' + err.message;
             }
@@ -136,7 +136,7 @@
                     body: JSON.stringify({ fromCurrency: from, toCurrency: to, amount, senderPhone, receiverPhone })
                 });
                 const data = await res.json();
-                document.getElementById('settle-output').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('settle-output').textContent = `Transaction ID: ${data.id}\nStatus: ${data.status}\nFrom: ${data.sender.phone} (${data.sender.currency}) - ${data.sender.amount.toLocaleString()}\nTo: ${data.receiver.phone} (${data.receiver.currency}) - ${data.receiver.amount.toLocaleString()}\nRate: ${data.exchangeRate}\nCorridor: ${data.corridor}\nTime: ${data.timestamp}`;
             } catch (err) {
                 document.getElementById('settle-output').textContent = 'Error: ' + err.message;
             }
