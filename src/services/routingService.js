@@ -18,7 +18,7 @@ function routePayment(fromCurrency, toCurrency, amount) {
     return {
         corridor: `${fromCurrency} → ${toCurrency}` ,
         sender: sender.name,
-        reciever: reciever.name,
+        receiver: reciever.name,
         amount,
         status: 'routed'
         }
