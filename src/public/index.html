@@ -122,25 +122,89 @@
             }
         }
 
-        async function sendMoney() {
-            const senderPhone = document.getElementById('sender-phone').value;
-            const receiverPhone = document.getElementById('receiver-phone').value;
-            const amount = document.getElementById('settle-amount').value;
-            const from = document.getElementById('settle-from').value;
-            const to = document.getElementById('settle-to').value;
-            document.getElementById('settle-output').textContent = 'Processing...';
-            try {
-                const res = await fetch('/api/settle', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fromCurrency: from, toCurrency: to, amount, senderPhone, receiverPhone })
-                });
-                const data = await res.json();
-                document.getElementById('settle-output').textContent = `Transaction ID: ${data.id}\nStatus: ${data.status}\nFrom: ${data.sender.phone} (${data.sender.currency}) - ${data.sender.amount.toLocaleString()}\nTo: ${data.receiver.phone} (${data.receiver.currency}) - ${data.receiver.amount.toLocaleString()}\nRate: ${data.exchangeRate}\nCorridor: ${data.corridor}\nTime: ${data.timestamp}`;
-            } catch (err) {
-                document.getElementById('settle-output').textContent = 'Error: ' + err.message;
-            }
+        <script>
+    async function convertFX() {
+        const amount = document.getElementById('fx-amount').value;
+        const from = document.getElementById('fx-from').value;
+        const to = document.getElementById('fx-to').value;
+        
+        if (!amount) {
+            document.getElementById('fx-output').textContent = 'Please enter an amount!';
+            return;
         }
-    </script>
+
+        document.getElementById('fx-output').textContent = 'Converting...';
+        try {
+            const res = await fetch(`/api/convert?amount=${amount}&from=${from}&to=${to}`);
+            const data = await res.json();
+            if (data.error) {
+                document.getElementById('fx-output').textContent = '❌ Error: ' + data.error;
+                return;
+            }
+            document.getElementById('fx-output').textContent = `✅ ${Number(amount).toLocaleString()} ${data.from} = ${data.converted.toLocaleString()} ${data.to}\nRate: ${data.rate}`;
+        } catch (err) {
+            document.getElementById('fx-output').textContent = '❌ Error: ' + err.message;
+        }
+    }
+
+    async function routePayment() {
+        const from = document.getElementById('route-from').value;
+        const to = document.getElementById('route-to').value;
+        const amount = document.getElementById('route-amount').value;
+
+        if (!amount) {
+            document.getElementById('route-output').textContent = 'Please enter an amount!';
+            return;
+        }
+
+        document.getElementById('route-output').textContent = 'Routing...';
+        try {
+            const res = await fetch(`/api/route?from=${from}&to=${to}&amount=${amount}`);
+            const data = await res.json();
+            if (data.error) {
+                document.getElementById('route-output').textContent = '❌ Error: ' + data.error;
+                return;
+            }
+            document.getElementById('route-output').textContent = `✅ Corridor: ${data.corridor}\nSender Provider: ${data.sender}\nReceiver Provider: ${data.receiver}\nAmount: ${Number(amount).toLocaleString()}\nStatus: ${data.status}`;
+        } catch (err) {
+            document.getElementById('route-output').textContent = '❌ Error: ' + err.message;
+        }
+    }
+
+    async function sendMoney() {
+        const senderPhone = document.getElementById('sender-phone').value;
+        const receiverPhone = document.getElementById('receiver-phone').value;
+        const amount = document.getElementById('settle-amount').value;
+        const from = document.getElementById('settle-from').value;
+        const to = document.getElementById('settle-to').value;
+
+        if (!senderPhone || !receiverPhone || !amount) {
+            document.getElementById('settle-output').textContent = '❌ Please fill in all fields!';
+            return;
+        }
+
+        if (from === to) {
+            document.getElementById('settle-output').textContent = '❌ From and To currencies must be different!';
+            return;
+        }
+
+        document.getElementById('settle-output').textContent = 'Processing payment...';
+        try {
+            const res = await fetch('/api/settle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fromCurrency: from, toCurrency: to, amount, senderPhone, receiverPhone })
+            });
+            const data = await res.json();
+            if (data.error) {
+                document.getElementById('settle-output').textContent = '❌ Error: ' + data.error;
+                return;
+            }
+            document.getElementById('settle-output').textContent = `✅ Payment Successful!\n\nTransaction ID: ${data.id}\nStatus: ${data.status}\nFrom: ${data.sender.phone} (${data.sender.currency}) - ${Number(data.sender.amount).toLocaleString()}\nTo: ${data.receiver.phone} (${data.receiver.currency}) - ${Number(data.receiver.amount).toLocaleString()}\nRate: ${data.exchangeRate}\nCorridor: ${data.corridor}\nTime: ${data.timestamp}`;
+        } catch (err) {
+            document.getElementById('settle-output').textContent = '❌ Error: ' + err.message;
+        }
+    }
+</script>
 </body>
 </html>
