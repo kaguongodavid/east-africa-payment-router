@@ -127,6 +127,7 @@
             const to = document.getElementById('settle-to').value;
             if (!senderPhone || !receiverPhone || !amount) { document.getElementById('settle-output').textContent = '❌ Please fill in all fields!'; return; }
             if (from === to) { document.getElementById('settle-output').textContent = '❌ From and To currencies must be different!'; return; }
+            if (Number(amount) <= 0) { document.getElementById('settle-output').textContent = '❌ Amount must be greater than 0!'; return; }
             document.getElementById('settle-output').textContent = 'Processing payment...';
             try {
                 const res = await fetch('/api/settle', {
