@@ -64,6 +64,15 @@ app.get('/api/route', (req, res) => {
 
 app.post('/api/settle', async (req, res) => {
     const { fromCurrency, toCurrency, amount, senderPhone, receiverPhone } = req.body;
+    
+    if (Number(amount) <= 0) {
+        return res.status(400).json({ error: 'Amount must be greater than 0' });
+    }
+    
+    if (fromCurrency === toCurrency) {
+        return res.status(400).json({ error: 'From and To currencies must be different' });
+    }
+
     const result = await processPayment(fromCurrency, toCurrency, Number(amount), senderPhone, receiverPhone);
     res.json(result);
 });
