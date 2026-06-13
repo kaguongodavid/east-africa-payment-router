@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { sendPayment, getTransaction, getAllTransactions, getRates } = require('../controllers/paymentController');
 const { validatePayment } = require('../middleware/validate');
+const { authenticate } = require('../middleware/auth');
+
+router.use(authenticate);
 
 router.post('/payments', validatePayment, sendPayment);
 router.get('/payments', getAllTransactions);
