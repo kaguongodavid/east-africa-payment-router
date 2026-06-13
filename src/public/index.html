@@ -90,6 +90,27 @@
         <pre id="settle-output">Results will appear here...</pre>
     </div>
 
+    <div class="card">
+        <h3>📋 Transaction History</h3>
+        <button onclick="loadHistory()">Load All Transactions</button>
+        <div id="history-container" style="margin-top: 15px; overflow-x: auto;">
+            <table id="history-table" style="width:100%; border-collapse: collapse; display:none;">
+                <thead>
+                    <tr style="background: #27ae60; color: white;">
+                        <th style="padding: 10px; text-align: left;">Time</th>
+                        <th style="padding: 10px; text-align: left;">From</th>
+                        <th style="padding: 10px; text-align: left;">To</th>
+                        <th style="padding: 10px; text-align: left;">Amount</th>
+                        <th style="padding: 10px; text-align: left;">Converted</th>
+                        <th style="padding: 10px; text-align: left;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="history-body"></tbody>
+            </table>
+            <p id="history-message" style="color: #666;">Click button to load transactions</p>
+        </div>
+    </div>
+
     <script>
         async function convertFX() {
             const amount = document.getElementById('fx-amount').value;
@@ -139,6 +160,36 @@
                 if (data.error) { document.getElementById('settle-output').textContent = '❌ Error: ' + data.error; return; }
                 document.getElementById('settle-output').textContent = `✅ Payment Successful!\n\nTransaction ID: ${data.id}\nStatus: ${data.status}\nFrom: ${data.sender.phone} (${data.sender.currency}) - ${Number(data.sender.amount).toLocaleString()}\nTo: ${data.receiver.phone} (${data.receiver.currency}) - ${Number(data.receiver.amount).toLocaleString()}\nRate: ${data.exchangeRate}\nCorridor: ${data.corridor}\nTime: ${data.timestamp}`;
             } catch (err) { document.getElementById('settle-output').textContent = '❌ Error: ' + err.message; }
+        }
+
+        async function loadHistory() {
+            document.getElementById('history-message').textContent = 'Loading...';
+            document.getElementById('history-table').style.display = 'none';
+            try {
+                const res = await fetch('/api/v1/payments');
+                const data = await res.json();
+                if (data.length === 0) {
+                    document.getElementById('history-message').textContent = 'No transactions yet!';
+                    return;
+                }
+                const tbody = document.getElementById('history-body');
+                tbody.innerHTML = '';
+                data.forEach(tx => {
+                    const row = `<tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px;">${new Date(tx.timestamp).toLocaleString()}</td>
+                        <td style="padding: 10px;">${Number(tx.amount).toLocaleString()} ${tx.from_currency}</td>
+                        <td style="padding: 10px;">${tx.to_currency}</td>
+                        <td style="padding: 10px;">${tx.sender_phone}</td>
+                        <td style="padding: 10px;">${Number(tx.converted_amount).toLocaleString()} ${tx.to_currency}</td>
+                        <td style="padding: 10px; color: #27ae60;">✅ ${tx.status}</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+                document.getElementById('history-table').style.display = 'table';
+                document.getElementById('history-message').textContent = `${data.length} transaction(s) found`;
+            } catch (err) {
+                document.getElementById('history-message').textContent = '❌ Error: ' + err.message;
+            }
         }
     </script>
 </body>
