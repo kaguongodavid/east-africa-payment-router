@@ -38,6 +38,9 @@ app.post('/test-settlement', async (req, res) => {
     res.json(result);
 })
 
+const errorHandler = require('./middleware/errorHandler');
+app.use(errorHandler);
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
