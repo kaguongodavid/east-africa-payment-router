@@ -76,3 +76,6 @@ app.post('/api/settle', async (req, res) => {
     const result = await processPayment(fromCurrency, toCurrency, Number(amount), senderPhone, receiverPhone);
     res.json(result);
 });
+
+const walletRoutes = require('./routes/wallets');
+app.use('/api/v1', walletRoutes);
