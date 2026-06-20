@@ -1,9 +1,11 @@
 const express = require('express');
 const { convert } = require('./services/fxService');
 const paymentRoutes = require('./routes/payments');
+const { apiLimiter } = require('./middleware/rateLimiter');
 const app = express();
 
 app.use(express.json());
+app.use('/api/', apiLimiter);
 app.use(express.static('src/public')); 
 app.use('/api/v1', paymentRoutes);
 
