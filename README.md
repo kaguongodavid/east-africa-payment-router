@@ -116,7 +116,9 @@ src/
 
 │   └── index.html            → Interactive frontend
 
-└── app.js            → Express app entry point                                  ## Run Locally
+└── app.js            → Express app entry point 
+                                
+ ## Run Locally
 git clone https://github.com/kaguongodavid/east-africa-payment-router.git
 cd east-africa-payment-router
 npm install
