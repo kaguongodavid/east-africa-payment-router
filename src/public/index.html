@@ -90,6 +90,58 @@
         <pre id="settle-output">Results will appear here...</pre>
     </div>
 
+
+    <div class="card">
+        <h3>👛 Create / View Wallet</h3>
+        <label>Phone Number</label>
+        <input type="text" id="wallet-phone" placeholder="+254712345678" />
+        <button onclick="createWallet()">Create Wallet</button>
+        <button onclick="viewWallet()" style="background: #2c3e50; margin-top: 10px;">View Balance</button>
+        <pre id="wallet-output">Results will appear here...</pre>
+    </div>
+
+    <div class="card">
+        <h3>💰 Top Up Wallet</h3>
+        <label>Phone Number</label>
+        <input type="text" id="topup-phone" placeholder="+254712345678" />
+        <label>Currency</label>
+        <select id="topup-currency">
+            <option value="KES">🇰🇪 KES — Kenya</option>
+            <option value="UGX">🇺🇬 UGX — Uganda</option>
+            <option value="TZS">🇹🇿 TZS — Tanzania</option>
+            <option value="RWF">🇷🇼 RWF — Rwanda</option>
+        </select>
+        <label>Amount</label>
+        <input type="number" id="topup-amount" placeholder="Enter amount" />
+        <button onclick="topUpWallet()">Top Up</button>
+        <pre id="topup-output">Results will appear here...</pre>
+    </div>
+
+    <div class="card">
+        <h3>🔁 Send From Wallet</h3>
+        <label>Sender Phone</label>
+        <input type="text" id="wsend-sender" placeholder="+254712345678" />
+        <label>Receiver Phone</label>
+        <input type="text" id="wsend-receiver" placeholder="+256712345678" />
+        <label>Amount</label>
+        <input type="number" id="wsend-amount" placeholder="Enter amount" />
+        <label>From Currency</label>
+        <select id="wsend-from">
+            <option value="KES">🇰🇪 KES — Kenya</option>
+            <option value="UGX">🇺🇬 UGX — Uganda</option>
+            <option value="TZS">🇹🇿 TZS — Tanzania</option>
+            <option value="RWF">🇷🇼 RWF — Rwanda</option>
+        </select>
+        <label>To Currency</label>
+        <select id="wsend-to">
+            <option value="UGX">🇺🇬 UGX — Uganda</option>
+            <option value="KES">🇰🇪 KES — Kenya</option>
+            <option value="TZS">🇹🇿 TZS — Tanzania</option>
+            <option value="RWF">🇷🇼 RWF — Rwanda</option>
+        </select>
+        <button onclick="sendFromWallet()">Send From Wallet</button>
+        <pre id="wsend-output">Results will appear here...</pre>
+    </div>
     <div class="card">
         <h3>📋 Transaction History</h3>
         <button onclick="loadHistory()">Load All Transactions</button>
@@ -154,6 +206,7 @@
                 const res = await fetch('/api/settle', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ fromCurrency: from, toCurrency: to, amount, senderPhone, receiverPhone })
                 });
                 const data = await res.json();
@@ -190,6 +243,77 @@
             } catch (err) {
                 document.getElementById('history-message').textContent = '❌ Error: ' + err.message;
             }
+        }
+
+
+        async function createWallet() {
+            const phone = document.getElementById('wallet-phone').value;
+            if (!phone) { document.getElementById('wallet-output').textContent = '❌ Enter a phone number!'; return; }
+            document.getElementById('wallet-output').textContent = 'Creating...';
+            try {
+                const res = await fetch('/api/public/wallets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
+                const data = await res.json();
+                if (data.error) { document.getElementById('wallet-output').textContent = '❌ Error: ' + data.error; return; }
+                document.getElementById('wallet-output').textContent = `✅ Wallet ready for ${data.phone}\nKES: ${data.kes_balance}\nUGX: ${data.ugx_balance}\nTZS: ${data.tzs_balance}\nRWF: ${data.rwf_balance}`;
+            } catch (err) { document.getElementById('wallet-output').textContent = '❌ Error: ' + err.message; }
+        }
+
+        async function viewWallet() {
+            const phone = document.getElementById('wallet-phone').value;
+            if (!phone) { document.getElementById('wallet-output').textContent = '❌ Enter a phone number!'; return; }
+            document.getElementById('wallet-output').textContent = 'Loading...';
+            try {
+                const res = await fetch(`/api/public/wallets/${phone}`);
+                const data = await res.json();
+                if (data.error) { document.getElementById('wallet-output').textContent = '❌ Error: ' + data.error; return; }
+                document.getElementById('wallet-output').textContent = `✅ Wallet: ${data.phone}\nKES: ${data.balances.KES.toLocaleString()}\nUGX: ${data.balances.UGX.toLocaleString()}\nTZS: ${data.balances.TZS.toLocaleString()}\nRWF: ${data.balances.RWF.toLocaleString()}`;
+            } catch (err) { document.getElementById('wallet-output').textContent = '❌ Error: ' + err.message; }
+        }
+
+        async function topUpWallet() {
+            const phone = document.getElementById('topup-phone').value;
+            const currency = document.getElementById('topup-currency').value;
+            const amount = document.getElementById('topup-amount').value;
+            if (!phone || !amount) { document.getElementById('topup-output').textContent = '❌ Fill in all fields!'; return; }
+            if (Number(amount) <= 0) { document.getElementById('topup-output').textContent = '❌ Amount must be greater than 0!'; return; }
+            document.getElementById('topup-output').textContent = 'Processing...';
+            try {
+                const res = await fetch('/api/public/wallets/topup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, currency, amount })
+                });
+                const data = await res.json();
+                if (data.error) { document.getElementById('topup-output').textContent = '❌ Error: ' + data.error; return; }
+                document.getElementById('topup-output').textContent = `✅ ${data.message}\nKES: ${data.balances.KES.toLocaleString()}\nUGX: ${data.balances.UGX.toLocaleString()}\nTZS: ${data.balances.TZS.toLocaleString()}\nRWF: ${data.balances.RWF.toLocaleString()}`;
+            } catch (err) { document.getElementById('topup-output').textContent = '❌ Error: ' + err.message; }
+        }
+
+        async function sendFromWallet() {
+            const senderPhone = document.getElementById('wsend-sender').value;
+            const receiverPhone = document.getElementById('wsend-receiver').value;
+            const amount = document.getElementById('wsend-amount').value;
+            const fromCurrency = document.getElementById('wsend-from').value;
+            const toCurrency = document.getElementById('wsend-to').value;
+            if (!senderPhone || !receiverPhone || !amount) { document.getElementById('wsend-output').textContent = '❌ Fill in all fields!'; return; }
+            if (fromCurrency === toCurrency) { document.getElementById('wsend-output').textContent = '❌ Currencies must be different!'; return; }
+            if (Number(amount) <= 0) { document.getElementById('wsend-output').textContent = '❌ Amount must be greater than 0!'; return; }
+            document.getElementById('wsend-output').textContent = 'Sending...';
+            try {
+                const res = await fetch('/api/public/wallets/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ senderPhone, receiverPhone, fromCurrency, toCurrency, amount })
+                });
+                const data = await res.json();
+                if (data.error) { document.getElementById('wsend-output').textContent = '❌ Error: ' + data.error; return; }
+                const tx = data.transaction;
+                document.getElementById('wsend-output').textContent = `✅ ${data.message}\n\nFrom: ${tx.sender.phone} (${tx.sender.currency}) - ${tx.sender.amount.toLocaleString()}\nTo: ${tx.receiver.phone} (${tx.receiver.currency}) - ${tx.receiver.amount.toLocaleString()}\nRate: ${tx.exchangeRate}`;
+            } catch (err) { document.getElementById('wsend-output').textContent = '❌ Error: ' + err.message; }
         }
     </script>
 </body>
