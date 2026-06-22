@@ -131,6 +131,14 @@ API_KEYS=your_test_api_key
 Then run: npm run dev
 Visit http://localhost:3000
 
+## Automated Tests
+
+This project includes a Jest test suite covering the payment routing logic and input validation middleware.
+
+Run with: npm test
+
+Result: 2 test suites passed, 11 tests passed.
+
 ## Roadmap
 - Rate limiting per API key
 - Automated test suite (Jest)
